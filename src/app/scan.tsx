@@ -3,7 +3,7 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { CameraView, useCameraPermissions, type CameraView as CameraViewType } from "expo-camera";
 import { ActivityIndicator, Image, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 
-const API_BASE_URL = Platform.OS === "web" ? (process.env.EXPO_PUBLIC_API_BASE_URL || "") : (process.env.EXPO_PUBLIC_API_BASE_URL || "https://aurenai-v7vsmszwby-4291.vercel.app").replace(/\/$/, "");
+const API_BASE_URL = Platform.OS === "web" ? (process.env.EXPO_PUBLIC_API_BASE_URL || "") : (process.env.EXPO_PUBLIC_API_BASE_URL || "https://aurenai-five.vercel.app").replace(/\/$/, "");
 const C = { bg: "#F5F2EC", paper: "#FCFBF8", ink: "#24231F", muted: "#77736C", line: "#E5E0D7", accent: "#927B62", pale: "#EDE7DE", white: "#FFFFFF" };
 type ScanKind = "hair" | "skin";
 type Analysis = { title?: string; overview?: string; observations?: string[]; recommendations?: string[]; limitations?: string[]; confidence?: string };
