@@ -39,6 +39,7 @@ export default function SkinScreen() {
       <Text style={styles.eyebrow}>AUREN / SKIN STUDIO</Text>
       <Text style={styles.title}>Build a routine that makes sense.</Text>
       <Text style={styles.intro}>Tell us how your skin behaves and what you want from a routine. The goal is comfort, consistency and clear information—not perfection.</Text>
+      <Link href={{ pathname: "/scan", params: { type: "skin" } }} asChild><Pressable style={styles.primary}><Text style={styles.primaryText}>SCAN MY SKIN WITH AI  →</Text></Pressable></Link>
       {!showResults ? <>
         <View style={styles.progressLine}><Text style={styles.progressLabel}>YOUR PROFILE</Text><Text style={styles.progressLabel}>{completed} / {questions.length}</Text></View>
         <View style={styles.track}><View style={[styles.fill, { width: `${completed / questions.length * 100}%` }]} /></View>
