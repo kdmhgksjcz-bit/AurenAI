@@ -57,6 +57,7 @@ export default function HairScreen() {
         <Text style={styles.eyebrow}>AUREN / HAIR STUDIO</Text>
         <Text style={styles.title}>Understand your hair.</Text>
         <Text style={styles.intro}>Build a useful starting profile. Choose the answers that feel closest; uncertainty is completely fine.</Text>
+        <Link href={{ pathname: "/scan", params: { type: "hair" } }} asChild><Pressable style={styles.primary}><Text style={styles.primaryText}>SCAN MY HAIR WITH AI  →</Text></Pressable></Link>
         {!showResults ? <>
           <View style={styles.progressLine}>
             <Text style={styles.progressLabel}>YOUR PROFILE</Text>
