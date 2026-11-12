@@ -17,9 +17,10 @@ export default function ScanScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const [consented, setConsented] = useState(false);
   const [error, setError] = useState("");
 
-  const reset = () => { setImage(null); setAnalysis(null); setError(""); setReady(false); };
+  const reset = () => { setImage(null); setAnalysis(null); setError(""); setReady(false); setConsented(false); };
 
   const capture = async () => {
     if (!camera.current || !ready || loading) return;
@@ -27,6 +28,7 @@ export default function ScanScreen() {
       setError("");
       const photo = await camera.current.takePictureAsync({ quality: 0.5, base64: true, exif: false });
       if (!photo?.base64) throw new Error("The camera did not return an image. Please try again.");
+      setConsented(false);
       setImage(`data:image/jpeg;base64,${photo.base64}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not capture the image.");
@@ -34,7 +36,7 @@ export default function ScanScreen() {
   };
 
   const runAnalysis = async () => {
-    if (!image || loading) return;
+    if (!image || loading || !consented) return;
     setLoading(true); setError(""); setAnalysis(null);
     try {
       if (image.length > 3_800_000) throw new Error("This photo is too large to send. Please retake it and try again.");
@@ -48,6 +50,7 @@ export default function ScanScreen() {
       if (!payload.analysis || typeof payload.analysis !== "object") throw new Error("The AI service returned an unexpected response. Please try again.");
       setAnalysis(payload.analysis as Analysis);
       setImage(null);
+      setConsented(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Connection failed. Please try again.");
     } finally {
@@ -88,6 +91,10 @@ export default function ScanScreen() {
             <CameraView ref={camera} style={styles.camera} facing={facing} onCameraReady={() => setReady(true)} onMountError={(e) => setError(e.message)} />}
           {!image && <View pointerEvents="none" style={styles.frameOverlay}><View style={styles.cornerTL}/><View style={styles.cornerTR}/><View style={styles.cornerBL}/><View style={styles.cornerBR}/></View>}
         </View>
+        {image ? <Pressable onPress={() => setConsented(value => !value)} accessibilityRole="checkbox" accessibilityState={{ checked: consented }} style={styles.consentRow}>
+          <View style={[styles.consentBox, consented && styles.consentBoxChecked]}>{consented ? <Text style={styles.consentCheck}>✓</Text> : null}</View>
+          <Text style={styles.consentText}>I agree to send this photo to the AI service for visual analysis. I understand the provider processes it under its own privacy terms.</Text>
+        </Pressable> : null}
         <View style={styles.cameraActions}>
           {!image ? <>
             <Pressable onPress={() => { setFacing(v => v === "front" ? "back" : "front"); setReady(false); }} style={styles.flip}><Text style={styles.flipText}>FLIP CAMERA</Text></Pressable>
@@ -95,7 +102,7 @@ export default function ScanScreen() {
             <View style={{ width: 92 }} />
           </> : <>
             <Pressable onPress={reset} style={styles.flip}><Text style={styles.flipText}>RETAKE</Text></Pressable>
-            <Pressable onPress={runAnalysis} disabled={loading} style={[styles.primary, styles.analyseButton]}>{loading ? <ActivityIndicator color={C.white}/> : <Text style={styles.primaryText}>ANALYSE PHOTO →</Text>}</Pressable>
+            <Pressable onPress={runAnalysis} disabled={loading || !consented} style={[styles.primary, styles.analyseButton, (!consented || loading) && { opacity: 0.45 }]}>{loading ? <ActivityIndicator color={C.white}/> : <Text style={styles.primaryText}>ANALYSE PHOTO →</Text>}</Pressable>
           </>}
         </View>
         {loading && <View style={styles.loading}><ActivityIndicator color={C.accent}/><Text style={styles.loadingText}>Reviewing visible details…</Text><Text style={styles.small}>This can take a few moments.</Text></View>}
@@ -149,6 +156,11 @@ const styles = StyleSheet.create({
   cornerTR: { position: "absolute", top: 0, right: 0, width: 32, height: 32, borderTopWidth: 2, borderRightWidth: 2, borderColor: "#F5F2EC" },
   cornerBL: { position: "absolute", bottom: 0, left: 0, width: 32, height: 32, borderBottomWidth: 2, borderLeftWidth: 2, borderColor: "#F5F2EC" },
   cornerBR: { position: "absolute", bottom: 0, right: 0, width: 32, height: 32, borderBottomWidth: 2, borderRightWidth: 2, borderColor: "#F5F2EC" },
+  consentRow: { flexDirection: "row", alignItems: "flex-start", gap: 10, padding: 14, backgroundColor: C.paper, borderWidth: 1, borderColor: C.line, marginTop: 12 },
+  consentBox: { width: 19, height: 19, borderWidth: 1, borderColor: C.accent, alignItems: "center", justifyContent: "center", marginTop: 1 },
+  consentBoxChecked: { backgroundColor: C.ink, borderColor: C.ink },
+  consentCheck: { color: C.white, fontSize: 12 },
+  consentText: { flex: 1, color: C.muted, fontSize: 10, lineHeight: 16 },
   cameraActions: { minHeight: 84, flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
   flip: { width: 92, paddingVertical: 12, alignItems: "center" },
   flipText: { color: C.muted, fontSize: 8, letterSpacing: 1.2, fontWeight: "600" },
