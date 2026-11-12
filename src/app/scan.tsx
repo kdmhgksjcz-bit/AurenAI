@@ -3,6 +3,7 @@ import { Link } from "expo-router";
 import { CameraView, useCameraPermissions, type CameraView as CameraViewType } from "expo-camera";
 import { ActivityIndicator, Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 
+const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL || "https://aurenai-v7vsmszwby-4291.vercel.app").replace(/\/$/, "");
 const C = { bg: "#F5F2EC", paper: "#FCFBF8", ink: "#24231F", muted: "#77736C", line: "#E5E0D7", accent: "#927B62", pale: "#EDE7DE", white: "#FFFFFF" };
 type ScanKind = "hair" | "skin";
 type Analysis = { title?: string; overview?: string; observations?: string[]; recommendations?: string[]; limitations?: string[]; confidence?: string };
@@ -18,13 +19,13 @@ export default function ScanScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const reset = () => { setImage(null); setAnalysis(null); setError(""); };
+  const reset = () => { setImage(null); setAnalysis(null); setError(""); setReady(false); };
 
   const capture = async () => {
     if (!camera.current || !ready || loading) return;
     try {
       setError("");
-      const photo = await camera.current.takePictureAsync({ quality: 0.62, base64: true, exif: false });
+      const photo = await camera.current.takePictureAsync({ quality: 0.5, base64: true, exif: false });
       if (!photo?.base64) throw new Error("The camera did not return an image. Please try again.");
       setImage(`data:image/jpeg;base64,${photo.base64}`);
     } catch (e) {
@@ -36,13 +37,15 @@ export default function ScanScreen() {
     if (!image || loading) return;
     setLoading(true); setError(""); setAnalysis(null);
     try {
-      const response = await fetch("/api/analyze", {
+      if (image.length > 3_800_000) throw new Error("This photo is too large to send. Please retake it and try again.");
+      const response = await fetch(API_BASE_URL + "/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: kind, image }),
       });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "The analysis could not be completed.");
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "The analysis could not be completed (HTTP " + response.status + ").");
+      if (!payload.analysis || typeof payload.analysis !== "object") throw new Error("The AI service returned an unexpected response. Please try again.");
       setAnalysis(payload.analysis as Analysis);
       setImage(null);
     } catch (e) {
