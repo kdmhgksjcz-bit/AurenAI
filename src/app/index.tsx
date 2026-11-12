@@ -46,7 +46,9 @@ export default function HomeScreen() {
           <Text style={styles.heroFoot}>PERSONAL GUIDANCE  ·  AI-ASSISTED  ·  PRIVACY MINDED</Text>
         </View>
 
-        <Link href="/scan" asChild><Pressable style={styles.scanCallout}><Text style={styles.scanEyebrow}>NEW / AI VISUAL SCAN</Text><Text style={styles.scanTitle}>Start with a photo.  ↗</Text><Text style={styles.scanCopy}>A guided hair or skin scan, with an AI-generated cosmetic care guide.</Text></Pressable></Link>\n\n        <View style={styles.sectionHeader}>
+        <Link href="/scan" asChild><Pressable style={styles.scanCallout}><Text style={styles.scanEyebrow}>NEW / AI VISUAL SCAN</Text><Text style={styles.scanTitle}>Start with a photo.  ↗</Text><Text style={styles.scanCopy}>A guided hair or skin scan, with an AI-generated cosmetic care guide.</Text></Pressable></Link>
+
+        <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Explore your studio</Text>
           <Text style={styles.sectionKicker}>01 — 03</Text>
         </View>
@@ -80,7 +82,11 @@ const styles = StyleSheet.create({
   heroCopy: { marginTop: 17, color: C.muted, fontSize: 14, lineHeight: 23, maxWidth: 440 },
   heroRule: { height: 1, backgroundColor: C.line, marginTop: 29, marginBottom: 13 },
   heroFoot: { color: C.muted, fontSize: 8, letterSpacing: 1.1 },
-  scanCallout: { backgroundColor: "#EDE7DE", borderWidth: 1, borderColor: "#E5E0D7", padding: 20, marginBottom: 29 },\n  scanEyebrow: { color: "#927B62", fontSize: 8, letterSpacing: 1.7, fontWeight: "600" },\n  scanTitle: { color: "#24231F", fontSize: 24, marginTop: 11 },\n  scanCopy: { color: "#77736C", fontSize: 11, lineHeight: 18, marginTop: 7 },\n  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 },
+  scanCallout: { backgroundColor: "#EDE7DE", borderWidth: 1, borderColor: "#E5E0D7", padding: 20, marginBottom: 29 },
+  scanEyebrow: { color: "#927B62", fontSize: 8, letterSpacing: 1.7, fontWeight: "600" },
+  scanTitle: { color: "#24231F", fontSize: 24, marginTop: 11 },
+  scanCopy: { color: "#77736C", fontSize: 11, lineHeight: 18, marginTop: 7 },
+  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 },
   sectionTitle: { color: C.ink, fontSize: 20, fontWeight: "500" },
   sectionKicker: { color: C.muted, fontSize: 9, letterSpacing: 1.4 },
   studioCard: { backgroundColor: C.paper, borderWidth: 1, borderColor: C.line, padding: 21, marginBottom: 11, minHeight: 174 },
