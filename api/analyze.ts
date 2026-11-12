@@ -10,8 +10,7 @@ function send(res: any, status: number, body: Record<string, unknown>) {
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return send(res, 405, { error: "Method not allowed." });
-  const oidcHeader = req.headers?.["x-vercel-oidc-token"];
-  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || (typeof oidcHeader === "string" ? oidcHeader : "");
+  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || "";
   if (!token) return send(res, 503, { error: "AI service is not configured yet. The deployment needs Vercel AI Gateway authentication." });
 
   const body = req.body || {};
@@ -80,7 +79,9 @@ Rules:
     const content = data?.choices?.[0]?.message?.content;
     const raw = typeof content === "string" ? content : Array.isArray(content) ? content.map((p: any) => p.text || "").join("") : "";
     const cleaned = raw.replace(/```json|```/gi, "").trim();
-    const parsed = JSON.parse(cleaned);
+    let parsed: any;
+    try { parsed = JSON.parse(cleaned); } catch { return send(res, 502, { error: "The AI service returned an unreadable result. Please try again." }); }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return send(res, 502, { error: "The AI service returned an unexpected result. Please try again." });
     const analysis = {
       title: String(parsed.title || "Your visual guide").slice(0, 100),
       overview: String(parsed.overview || "").slice(0, 700),
