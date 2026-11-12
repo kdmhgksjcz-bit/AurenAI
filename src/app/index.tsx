@@ -40,13 +40,13 @@ export default function HomeScreen() {
           <Text style={styles.eyebrow}>BEAUTY, WITH CLARITY</Text>
           <Text style={styles.heroTitle}>A more considered way to care for yourself.</Text>
           <Text style={styles.heroCopy}>
-            Understand your hair and skin. Explore practical routines. Make informed choices without the noise.
+            Scan a photo you choose. Explore visible details, practical routines and informed product decisions.
           </Text>
           <View style={styles.heroRule} />
-          <Text style={styles.heroFoot}>PERSONAL GUIDANCE  ·  EVIDENCE AWARE  ·  NO FACE SCAN</Text>
+          <Text style={styles.heroFoot}>PERSONAL GUIDANCE  ·  AI-ASSISTED  ·  PRIVACY MINDED</Text>
         </View>
 
-        <View style={styles.sectionHeader}>
+        <Link href="/scan" asChild><Pressable style={styles.scanCallout}><Text style={styles.scanEyebrow}>NEW / AI VISUAL SCAN</Text><Text style={styles.scanTitle}>Start with a photo.  ↗</Text><Text style={styles.scanCopy}>A guided hair or skin scan, with an AI-generated cosmetic care guide.</Text></Pressable></Link>\n\n        <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Explore your studio</Text>
           <Text style={styles.sectionKicker}>01 — 03</Text>
         </View>
@@ -57,9 +57,9 @@ export default function HomeScreen() {
         <View style={styles.principle}>
           <Text style={styles.principleEyebrow}>THE AUREN STANDARD</Text>
           <Text style={styles.principleTitle}>Knowledge before claims.</Text>
-          <Text style={styles.principleCopy}>AUREN currently uses guided self-assessment and transparent cosmetic guidance. It does not diagnose conditions or claim to perform image-based AI analysis.</Text>
+          <Text style={styles.principleCopy}>AUREN provides AI-assisted visual observations for cosmetic education. A single photo cannot establish medical conditions or reliably measure every hair or skin characteristic.</Text>
         </View>
-        <Text style={styles.footer}>AUREN AI  ·  VERSION 0.2  ·  ENGLISH</Text>
+        <Text style={styles.footer}>AUREN AI  ·  VERSION 0.3  ·  ENGLISH</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   heroCopy: { marginTop: 17, color: C.muted, fontSize: 14, lineHeight: 23, maxWidth: 440 },
   heroRule: { height: 1, backgroundColor: C.line, marginTop: 29, marginBottom: 13 },
   heroFoot: { color: C.muted, fontSize: 8, letterSpacing: 1.1 },
-  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 },
+  scanCallout: { backgroundColor: "#EDE7DE", borderWidth: 1, borderColor: "#E5E0D7", padding: 20, marginBottom: 29 },\n  scanEyebrow: { color: "#927B62", fontSize: 8, letterSpacing: 1.7, fontWeight: "600" },\n  scanTitle: { color: "#24231F", fontSize: 24, marginTop: 11 },\n  scanCopy: { color: "#77736C", fontSize: 11, lineHeight: 18, marginTop: 7 },\n  sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 },
   sectionTitle: { color: C.ink, fontSize: 20, fontWeight: "500" },
   sectionKicker: { color: C.muted, fontSize: 9, letterSpacing: 1.4 },
   studioCard: { backgroundColor: C.paper, borderWidth: 1, borderColor: C.line, padding: 21, marginBottom: 11, minHeight: 174 },
