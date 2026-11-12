@@ -10,7 +10,11 @@ function send(res: any, status: number, body: Record<string, unknown>) {
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return send(res, 405, { error: "Method not allowed." });
-  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || "";
+  // Vercel Functions receive the current short-lived OIDC token in this request header.
+  // Never log or return this credential. Local development can use AI_GATEWAY_API_KEY.
+  const oidcHeader = req.headers?.["x-vercel-oidc-token"];
+  const requestOidcToken = Array.isArray(oidcHeader) ? oidcHeader[0] : oidcHeader;
+  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || requestOidcToken || "";
   if (!token) return send(res, 503, { error: "AI service is not configured yet. The deployment needs Vercel AI Gateway authentication." });
 
   const body = req.body || {};
