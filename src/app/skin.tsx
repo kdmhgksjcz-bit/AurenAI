@@ -16,6 +16,7 @@ export default function SkinScreen() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const completed = useMemo(() => questions.filter((q) => answers[q.key]).length, [answers]);
 
   return (
