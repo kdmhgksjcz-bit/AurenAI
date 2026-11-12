@@ -83,7 +83,11 @@ Rules:
         requestId: typeof data?.request_id === "string" ? data.request_id.slice(0, 100) : undefined,
       });
       if (status === 401) return send(res, 503, { error: "AI authentication is not active for this deployment yet." });
-      if (status === 402 || status === 403) return send(res, 503, { error: "Vercel AI Gateway rejected the request. Check billing, model access, or account verification." });
+      if (status === 402 || status === 403) return send(res, 503, {
+        error: "Vercel AI Gateway rejected the request.",
+        gatewayCode: typeof gatewayError?.code === "string" ? gatewayError.code.slice(0, 100) : "unknown",
+        gatewayMessage: typeof gatewayError?.message === "string" ? gatewayError.message.slice(0, 300) : "No provider message was returned."
+      });
       if (status === 429) return send(res, 429, { error: "The AI service is busy. Please wait a moment and try again." });
       return send(res, 502, { error: "The AI provider could not complete the analysis. Please try again." });
     }
