@@ -1,5 +1,5 @@
 const MODEL = "google/gemini-3.6-flash";
-const MAX_IMAGE_CHARS = 5_500_000;
+const MAX_IMAGE_CHARS = 4_000_000;
 
 function send(res: any, status: number, body: Record<string, unknown>) {
   res.statusCode = status;
