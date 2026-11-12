@@ -10,7 +10,8 @@ function send(res: any, status: number, body: Record<string, unknown>) {
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return send(res, 405, { error: "Method not allowed." });
-  const token = process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY;
+  const oidcHeader = req.headers?.["x-vercel-oidc-token"];
+  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || (typeof oidcHeader === "string" ? oidcHeader : "");
   if (!token) return send(res, 503, { error: "AI service is not configured yet. The deployment needs Vercel AI Gateway authentication." });
 
   const body = req.body || {};
@@ -56,7 +57,6 @@ Rules:
         model: MODEL,
         temperature: 0.2,
         max_tokens: 950,
-        response_format: { type: "json_object" },
         messages: [{
           role: "user",
           content: [
@@ -79,7 +79,8 @@ Rules:
 
     const content = data?.choices?.[0]?.message?.content;
     const raw = typeof content === "string" ? content : Array.isArray(content) ? content.map((p: any) => p.text || "").join("") : "";
-    const parsed = JSON.parse(raw);
+    const cleaned = raw.replace(/```json|```/gi, "").trim();
+    const parsed = JSON.parse(cleaned);
     const analysis = {
       title: String(parsed.title || "Your visual guide").slice(0, 100),
       overview: String(parsed.overview || "").slice(0, 700),
