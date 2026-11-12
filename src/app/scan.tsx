@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
 import { CameraView, useCameraPermissions, type CameraView as CameraViewType } from "expo-camera";
+import * as ImageManipulator from "expo-image-manipulator";
 import { ActivityIndicator, Image, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const API_BASE_URL = Platform.OS === "web" ? (process.env.EXPO_PUBLIC_API_BASE_URL || "") : (process.env.EXPO_PUBLIC_API_BASE_URL || "https://aurenai-five.vercel.app").replace(/\/$/, "");
@@ -27,10 +28,26 @@ export default function ScanScreen() {
     if (!camera.current || !ready || loading) return;
     try {
       setError("");
-      const photo = await camera.current.takePictureAsync({ quality: 0.5, base64: true, exif: false });
-      if (!photo?.base64) throw new Error("The camera did not return an image. Please try again.");
+      const photo = await camera.current.takePictureAsync({ quality: 0.7, exif: false });
+      if (!photo?.uri) throw new Error("The camera did not return an image. Please try again.");
+
+      // Normalize every capture to a small, predictable JPEG before preview or upload.
+      let compressed = await ImageManipulator.manipulateAsync(
+        photo.uri,
+        [{ resize: { width: 1280 } }],
+        { compress: 0.55, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+      );
+      if (!compressed.base64 || compressed.base64.length > 3_500_000) {
+        compressed = await ImageManipulator.manipulateAsync(
+          photo.uri,
+          [{ resize: { width: 1024 } }],
+          { compress: 0.4, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+        );
+      }
+      if (!compressed.base64) throw new Error("The photo could not be converted to JPEG. Please try again.");
+      if (compressed.base64.length > 3_500_000) throw new Error("The compressed photo is still too large. Please move slightly closer and retake it.");
       setConsented(false);
-      setImage(`data:image/jpeg;base64,${photo.base64}`);
+      setImage(`data:image/jpeg;base64,${compressed.base64}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not capture the image.");
     }
