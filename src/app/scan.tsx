@@ -124,7 +124,7 @@ export default function ScanScreen() {
       {error ? <View style={styles.error}><Text style={styles.errorText}>{error}</Text></View> : null}
       <View style={styles.privacy}>
         <Text style={styles.privacyTitle}>Your image, your choice</Text>
-        <Text style={styles.privacyText}>The photo is sent to the AI service for this request. AUREN does not save it to a user profile or photo library. The AI provider processes the image under its own terms and privacy policy. Only scan your own image. You can cancel before sending.</Text>
+        <Text style={styles.privacyText}>The photo is sent through Vercel AI Gateway to the model provider for this request. AUREN does not add it to an account profile or your photo library. Your device may temporarily cache the camera capture; provider handling follows its privacy terms. Only scan your own image. You can cancel before sending.</Text>
       </View>
       <Text style={styles.footer}>COSMETIC GUIDANCE ONLY · NOT A MEDICAL ASSESSMENT</Text>
     </ScrollView>
