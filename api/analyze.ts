@@ -17,7 +17,7 @@ export default async function handler(req: any, res: any) {
   const type = body.type === "skin" ? "skin" : body.type === "hair" ? "hair" : null;
   const image = typeof body.image === "string" ? body.image : "";
   if (!type) return send(res, 400, { error: "Choose either a hair or skin scan." });
-  if (!image.startsWith("data:image/jpeg;base64,") || image.length > MAX_IMAGE_CHARS) {
+  if (!/^data:image\\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(image) || image.length > MAX_IMAGE_CHARS) {
     return send(res, 400, { error: "Please take a new JPEG photo. The image must be under the size limit." });
   }
 
@@ -83,11 +83,11 @@ Rules:
     try { parsed = JSON.parse(cleaned); } catch { return send(res, 502, { error: "The AI service returned an unreadable result. Please try again." }); }
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return send(res, 502, { error: "The AI service returned an unexpected result. Please try again." });
     const analysis = {
-      title: String(parsed.title || "Your visual guide").slice(0, 100),
-      overview: String(parsed.overview || "").slice(0, 700),
-      observations: Array.isArray(parsed.observations) ? parsed.observations.slice(0, 5).map((x: unknown) => String(x).slice(0, 350)) : [],
+      title: String(parsed.title || "Your visual guide").replace(/[<>]/g, "").slice(0, 100),
+      overview: String(parsed.overview || "").replace(/[<>]/g, "").slice(0, 700),
+      observations: Array.isArray(parsed.observations) ? parsed.observations.slice(0, 5).map((x: unknown) => String(x).replace(/[<>]/g, "").slice(0, 350)) : [],
       recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations.slice(0, 5).map((x: unknown) => String(x).slice(0, 350)) : [],
-      limitations: Array.isArray(parsed.limitations) ? parsed.limitations.slice(0, 4).map((x: unknown) => String(x).slice(0, 300)) : [],
+      limitations: Array.isArray(parsed.limitations) ? parsed.limitations.slice(0, 4).map((x: unknown) => String(x).replace(/[<>]/g, "").slice(0, 300)) : [],
       confidence: ["low", "moderate", "good"].includes(parsed.confidence) ? parsed.confidence : "low",
     };
     return send(res, 200, { analysis, model: MODEL });
