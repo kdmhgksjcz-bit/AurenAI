@@ -14,6 +14,7 @@ const questions = [
 
 export default function HairScreen() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
   const completed = useMemo(() => questions.filter((q) => answers[q.key]).length, [answers]);
 
   return (
@@ -49,9 +50,10 @@ export default function HairScreen() {
           <Text style={styles.noteTitle}>A note on accuracy</Text>
           <Text style={styles.noteText}>This profile is a starting point, not a scientific measurement. Hair behaviour can change with length, weather, styling and product use.</Text>
         </View>
-        <Pressable disabled={completed !== questions.length} onPress={() => {}} style={[styles.button, completed !== questions.length && styles.buttonDisabled]}>
-          <Text style={styles.buttonText}>PROFILE COMPLETE</Text>
+        <Pressable disabled={completed !== questions.length} onPress={() => setSubmitted(true)} style={[styles.button, completed !== questions.length && styles.buttonDisabled]}>
+          <Text style={styles.buttonText}>{submitted ? "PROFILE REVIEWED" : "REVIEW MY PROFILE"}</Text>
         </Pressable>
+        {submitted ? <Text style={styles.confirmation}>Your answers are ready for the next analysis step. This prototype does not yet generate AI recommendations or save a profile between sessions.</Text> : null}
         <Text style={styles.bottom}>Your answers stay on this screen in this prototype. No photo scan or upload is used.</Text>
       </ScrollView>
     </SafeAreaView>
