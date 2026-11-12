@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { CameraView, useCameraPermissions, type CameraView as CameraViewType } from "expo-camera";
 import { ActivityIndicator, Image, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -9,9 +9,10 @@ type ScanKind = "hair" | "skin";
 type Analysis = { title?: string; overview?: string; observations?: string[]; recommendations?: string[]; limitations?: string[]; confidence?: string };
 
 export default function ScanScreen() {
+  const params = useLocalSearchParams<{ type?: string }>();
   const camera = useRef<CameraViewType>(null);
   const [permission, requestPermission] = useCameraPermissions();
-  const [kind, setKind] = useState<ScanKind>("hair");
+  const [kind, setKind] = useState<ScanKind>(() => params.type === "skin" ? "skin" : "hair");
   const [facing, setFacing] = useState<"front" | "back">("front");
   const [ready, setReady] = useState(false);
   const [image, setImage] = useState<string | null>(null);
