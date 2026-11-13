@@ -10,8 +10,6 @@ function send(res: any, status: number, body: Record<string, unknown>) {
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") return send(res, 405, { error: "Method not allowed." });
-  // Vercel Functions receive the current short-lived OIDC token in this request header.
-  // Never log or return this credential. Local development can use AI_GATEWAY_API_KEY.
   const oidcHeader = req.headers?.["x-vercel-oidc-token"];
   const requestOidcToken = Array.isArray(oidcHeader) ? oidcHeader[0] : oidcHeader;
   const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || requestOidcToken || "";
@@ -52,21 +50,15 @@ Rules:
   try {
     const gatewayResponse = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: MODEL,
         temperature: 0.2,
         max_tokens: 950,
-        messages: [{
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: image, detail: "high" } }
-          ]
-        }]
+        messages: [{ role: "user", content: [
+          { type: "text", text: prompt },
+          { type: "image_url", image_url: { url: image, detail: "high" } }
+        ]}]
       }),
       signal: AbortSignal.timeout(45_000),
     });
@@ -75,7 +67,6 @@ Rules:
     if (!gatewayResponse.ok) {
       const status = gatewayResponse.status;
       const gatewayError = data?.error;
-      // Keep provider diagnostics server-side; never expose credentials or raw upstream payloads.
       console.error("AI_GATEWAY_REJECTED", {
         status,
         code: typeof gatewayError?.code === "string" ? gatewayError.code.slice(0, 100) : undefined,
@@ -83,22 +74,19 @@ Rules:
         requestId: typeof data?.request_id === "string" ? data.request_id.slice(0, 100) : undefined,
       });
       if (status === 401) return send(res, 503, { error: "AI authentication is not active for this deployment yet." });
-      if (status === 402 || status === 403) return send(res, 503, {
-        error: "Vercel AI Gateway rejected the request.",
-        gatewayCode: typeof gatewayError?.code === "string" ? gatewayError.code.slice(0, 100) : "unknown",
-        gatewayMessage: typeof gatewayError?.message === "string" ? gatewayError.message.slice(0, 300) : "No provider message was returned."
-      });
+      if (status === 402 || status === 403) return send(res, 503, { error: "The AI service is not currently available. The project owner needs to enable an approved AI Gateway payment method or configure an authorized provider key." });
       if (status === 429) return send(res, 429, { error: "The AI service is busy. Please wait a moment and try again." });
       return send(res, 502, { error: "The AI provider could not complete the analysis. Please try again." });
     }
 
     const content = data?.choices?.[0]?.message?.content;
     const raw = typeof content === "string" ? content : Array.isArray(content) ? content.map((p: any) => p.text || "").join("") : "";
-    const cleaned = raw.replace(/```json|```/gi, "").trim();
+    const cleaned = raw.replace(/\`\`\`json|\`\`\`/gi, "").trim();
     let parsed: any;
     try { parsed = JSON.parse(cleaned); } catch { return send(res, 502, { error: "The AI service returned an unreadable result. Please try again." }); }
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return send(res, 502, { error: "The AI service returned an unexpected result. Please try again." });
     if (parsed.type && parsed.type !== type) return send(res, 502, { error: "The AI service returned a mismatched scan result. Please try again." });
+
     const analysis = {
       title: String(parsed.title || "Your visual guide").replace(/[<>]/g, "").slice(0, 100),
       overview: String(parsed.overview || "").replace(/[<>]/g, "").slice(0, 700),
